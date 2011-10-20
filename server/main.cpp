@@ -58,11 +58,10 @@ void main(int argc, const char* argv[])
 		return;
 	}
 
-	Socket         acceptSocket;
-	SocketMonicker acceptSocketMonicker(acceptSocket);
-	for (;;)
+	for (unsigned int i = 0; i < count; ++i)
 	{
-		acceptSocket = Socket();
+		Socket         acceptSocket;
+		SocketMonicker acceptSocketMonicker(acceptSocket);
 		while (!acceptSocket.good())
 		{
 			acceptSocket = socket.accept();
@@ -71,11 +70,8 @@ void main(int argc, const char* argv[])
 		std::string  message;
 		while (acceptSocket.recv(message))
 		{
-			std::cout << ++messageCnt << ". recv message: " << message << std::endl;
+			std::cout << ++messageCnt << ". recv message: '" << message << "'" << std::endl;
 			acceptSocket.send("pong");
 		}
-		break;
 	}
-
-	int i = 1;
 }
