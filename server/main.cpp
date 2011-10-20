@@ -68,7 +68,7 @@ void main(int argc, const char* argv[])
 		}
 		unsigned int messageCnt = 0;
 		std::string  message;
-		while (acceptSocket.recv(message))
+		while (acceptSocket.recv(message) && !message.empty())
 		{
 			std::cout << ++messageCnt << ". recv message: '" << message << "'" << std::endl;
 			acceptSocket.send("pong");
