@@ -34,10 +34,37 @@ public:
 	bool   bind    (const std::string& ip, unsigned short port);
 	bool   listen  (unsigned int count);
 	Socket accept  () const;
+	bool   send    (const std::string& message);
+	bool   recv    (std::string& message);
 
 private:
 	SOCKET       m_socket;
 	sockaddr_in  m_addr;
+};
+
+// --------------------------------------------------------------------------------
+// ------------- noncopyable
+// жесткий копипаст из буста, чтобы не ругался компилятор warning C4512
+// при warning level = 4
+// --------------------------------------------------------------------------------
+class noncopyable
+{
+protected:
+	noncopyable () {}
+	~noncopyable() {}
+private:
+	noncopyable(const noncopyable&);
+	const noncopyable& operator=(const noncopyable&);
+};
+
+class SocketMonicker: private noncopyable
+{
+public:
+	SocketMonicker(Socket& socket);
+	~SocketMonicker();
+
+private:
+	Socket& m_socket;
 };
 
 // --------------------------------------------------------------------------------

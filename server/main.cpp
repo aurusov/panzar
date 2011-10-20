@@ -38,7 +38,8 @@ void main(int argc, const char* argv[])
 		return;
 	}
 
-	Socket socket;
+	Socket         socket;
+	SocketMonicker socketMonicker(socket);
 	if (!socket.create())
 	{
 		std::cerr << "socket creation error: " << WSAGetLastError() << std::endl;
@@ -57,7 +58,8 @@ void main(int argc, const char* argv[])
 		return;
 	}
 
-	Socket acceptSocket;
+	Socket         acceptSocket;
+	SocketMonicker acceptSocketMonicker(acceptSocket);
 	for (;;)
 	{
 		acceptSocket = Socket();
@@ -65,7 +67,13 @@ void main(int argc, const char* argv[])
 		{
 			acceptSocket = socket.accept();
 		}
-		socket = acceptSocket;
+		unsigned int messageCnt = 0;
+		std::string  message;
+		while (acceptSocket.recv(message))
+		{
+			std::cout << ++messageCnt << ". recv message: " << message << std::endl;
+			acceptSocket.send("pong");
+		}
 		break;
 	}
 

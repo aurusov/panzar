@@ -28,14 +28,10 @@ Socket::Socket(const SOCKET& socket, const sockaddr_in& addr)
 {}
 
 Socket::~Socket()
-{
-	close();
-}
+{}
 
 Socket& Socket::operator= (const Socket& socket)
 {
-	close();
-
 	m_socket = socket.m_socket;
 	m_addr   = socket.m_addr;
 	return *this;
@@ -84,6 +80,31 @@ bool Socket::listen(unsigned int count)
 Socket Socket::accept() const
 {
 	return Socket(::accept(m_socket, NULL, NULL), m_addr);
+}
+
+bool Socket::send(const std::string& message)
+{
+	return ::send(m_socket, message.c_str(), message.length(), 0) != SOCKET_ERROR;
+}
+
+bool Socket::recv(std::string& message)
+{
+	char recvbuf[1024] = "";
+	int result = ::recv(m_socket, recvbuf, sizeof(recvbuf), 0);
+	message = recvbuf;
+	return result != SOCKET_ERROR;
+}
+
+// --------------------------------------------------------------------------------
+// ------------- SocketMonicker
+// --------------------------------------------------------------------------------
+SocketMonicker::SocketMonicker(Socket& socket)
+	: m_socket(socket)
+{}
+
+SocketMonicker::~SocketMonicker()
+{
+	m_socket.close();
 }
 
 // --------------------------------------------------------------------------------
