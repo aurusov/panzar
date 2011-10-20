@@ -53,6 +53,8 @@ void main(int argc, const char* argv[])
 	}
 
 	static const std::string s_message("Hello world!");
+
+	DWORD timeStart = ::GetTickCount();
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		if (socket.send(s_message))
@@ -69,4 +71,7 @@ void main(int argc, const char* argv[])
 			std::cerr << "socket send error: " << WSAGetLastError() << std::endl;
 		}
 	}
+	DWORD timeStop = ::GetTickCount();
+
+	std::cout << "work time: " << timeStop - timeStart << " msec" << std::endl;
 }
