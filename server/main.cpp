@@ -27,7 +27,7 @@ void main(int argc, const char* argv[])
 	    !paramParser.get("count", count))
 	{
 		std::cout << "use client.exe with params:" << std::endl
-		          << "client.exe --ip=<server_address> --port=<server_port> --count=<messages_count>" << std::endl;
+		          << "server.exe --ip=<server_address> --port=<server_port> --count=<clients_count>" << std::endl;
 		return;
 	}
 
@@ -45,10 +45,28 @@ void main(int argc, const char* argv[])
 		return;
 	}
 
-	if (!socket.connect(ip, port))
+	if (!socket.bind(ip, port))
 	{
 		std::cerr << "socket connection error: " << WSAGetLastError() << std::endl;
 		return;
+	}
+
+	if (!socket.listen(count))
+	{
+		std::cerr << "socket listen error: " << WSAGetLastError() << std::endl;
+		return;
+	}
+
+	Socket acceptSocket;
+	for (;;)
+	{
+		acceptSocket = Socket();
+		while (!acceptSocket.good())
+		{
+			acceptSocket = socket.accept();
+		}
+		socket = acceptSocket;
+		break;
 	}
 
 	int i = 1;
