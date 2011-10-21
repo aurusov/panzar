@@ -12,7 +12,6 @@
 #include "utils/socket.h"
 // --------------------------------------------------------------------------------
 
-
 Socket::Socket()
 	: m_socket(INVALID_SOCKET)
 {}
@@ -91,8 +90,11 @@ bool Socket::recv(std::string& message)
 {
 	char recvbuf[1024] = "";
 	int result = ::recv(m_socket, recvbuf, sizeof(recvbuf), 0);
-	message = recvbuf;
-	return result != SOCKET_ERROR;
+	if (result > 0)
+	{
+		message = recvbuf;
+	}
+	return result != 0 && result != SOCKET_ERROR;
 }
 
 // --------------------------------------------------------------------------------
