@@ -167,6 +167,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name=".thread"
+			>
+			<File
+				RelativePath=".\thread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\thread.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
