@@ -9,10 +9,14 @@
 
 // ----------------------------------------------------------------------- INCLUDES
 #include <iostream>
+#include <vector>
 // ----------------------------------------------------------------------- SYNOPSIS
 #include "utils/params.h"
 #include "utils/socket.h"
+#include "utils/thread.h"
 // --------------------------------------------------------------------------------
+
+DWORD WINAPI item(void* pArg);
 
 void main(int argc, const char* argv[])
 {
@@ -58,20 +62,48 @@ void main(int argc, const char* argv[])
 		return;
 	}
 
+	typedef  std::vector<HANDLE>  HandleList;
+	HandleList handleList;
+
 	for (unsigned int i = 0; i < count; ++i)
 	{
-		Socket         acceptSocket;
-		SocketMonicker acceptSocketMonicker(acceptSocket);
-		while (!acceptSocket.good())
+		Socket* pSocket = new Socket();
+		while (!pSocket->good())
 		{
-			acceptSocket = socket.accept();
+			*pSocket = socket.accept();
 		}
-		unsigned int messageCnt = 0;
-		std::string  message;
-		while (acceptSocket.recv(message) && !message.empty())
+		Thread thread;
+		if (!thread.create(item, pSocket))
 		{
-			std::cout << ++messageCnt << ". recv message: '" << message << "'" << std::endl;
-			acceptSocket.send("pong");
+			delete pSocket;
+			continue;
 		}
+		handleList.push_back(thread.handle());
+		thread.resume();
 	}
+
+	while (::WaitForMultipleObjects(handleList.size(), &handleList[0], true, 0) == WAIT_TIMEOUT)
+	{}
+}
+
+DWORD WINAPI item(void* pArg)
+{
+	DWORD timeStart = ::GetTickCount();
+
+	Socket* pSocket = reinterpret_cast<Socket*>(pArg);
+
+	unsigned int messageCnt = 0;
+	std::string  message;
+	while (pSocket->recv(message))
+	{
+		std::cout << ::GetCurrentThreadId() << ": " << ++messageCnt << ". recv message: '" << message << "'" << std::endl;
+		pSocket->send("pong");
+	}
+	pSocket->close();
+	delete pSocket;
+
+	DWORD timeStop = ::GetTickCount();
+	std::cout << ::GetCurrentThreadId() << ": work time: " << timeStop - timeStart << " msec" << std::endl;
+
+	return 0;
 }
